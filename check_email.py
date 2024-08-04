@@ -56,3 +56,9 @@ if __name__ == "__main__":
     imap_server = 'imap-mail.outlook.com'  # Correct IMAP server for Hotmail/Outlook
     num_emails = 10
     check_inbox(username, password, imap_server, num_emails)
+
+#Gmail: imap.gmail.com
+#Outlook/Hotmail: imap-mail.outlook.com
+#Yahoo Mail: imap.mail.yahoo.com
+#iCloud Mail: imap.mail.me.com
+#AOL Mail: imap.aol.com
