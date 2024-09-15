@@ -1,5 +1,4 @@
 import { Image, StyleSheet, Platform } from 'react-native';
-
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -7,35 +6,26 @@ import { ThemedView } from '@/components/ThemedView';
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, ActivityIndicator } from 'react-native';
-import axios from 'axios';
-
-// Define the type for a User object
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
+import { fetchUsers, User } from '@/api/userApi'; // Import the fetchUsers function and User type
 
 export default function HomeScreen() {
   // Define state to hold the API data and loading status
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Function to fetch data from the API
-  const fetchUsers = async () => {
-    try {
-      const response = await axios.get('https://jsonplaceholder.typicode.com/users');
-      setUsers(response.data);  // Set the data in state
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);  // Set loading to false when the request is complete
-    }
-  };
-
   // useEffect hook to call the API when the component mounts
   useEffect(() => {
-    fetchUsers();
+    const getUsers = async () => {
+      try {
+        const data = await fetchUsers();  // Use the imported fetchUsers function
+        setUsers(data);
+      } catch (error) {
+        console.error('Error loading users:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getUsers();
   }, []);
 
   // Render loading spinner while data is being fetched
@@ -49,32 +39,29 @@ export default function HomeScreen() {
 
   return (
     <ParallaxScrollView
-  headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-  headerImage={
-    <Image
-      source={require('@/assets/images/partial-react-logo.png')}
-      style={styles.reactLogo}
-    />
-  }
->
-  <ThemedView style={styles.titleContainer}>
-    <ThemedText type="title">Welcome Safa Abem!</ThemedText>
-    <HelloWave />
-  </ThemedView>
-  
-  <Text style={styles.title}>User List</Text>
-  <FlatList
-    data={users}
-    keyExtractor={(item) => item.id.toString()}
-    renderItem={({ item }) => (
-      <View style={styles.item}>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.name}>{item.email}</Text>
-      </View>
-    )}
-  />
-</ParallaxScrollView>
-
+      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerImage={
+        <Image
+          source={require('@/assets/images/partial-react-logo.png')}
+          style={styles.reactLogo}
+        />
+      }>
+      <ThemedView style={styles.titleContainer}>
+        <ThemedText type="title">Welcome Safa Abem!</ThemedText>
+        <HelloWave />
+      </ThemedView>
+      <Text style={styles.title}>User List</Text>
+      <FlatList
+        data={users}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.item}>
+            <Text style={styles.name}>{item.name}</Text>
+            <Text style={styles.name}>{item.email}</Text>
+          </View>
+        )}
+      />
+    </ParallaxScrollView>
   );
 }
 
@@ -83,10 +70,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
   },
   reactLogo: {
     height: 178,
