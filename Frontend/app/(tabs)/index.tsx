@@ -19,6 +19,36 @@ export default function HomeScreen() {
   const textColor = colorScheme === 'dark' ? '#FFFFFF' : '#000000';       
   const itemBackgroundColor = colorScheme === 'dark' ? '#333' : '#EEE';   
   const flatListContainerBackground = colorScheme === 'dark' ? '#222' : '#F0F0F0'; 
+  
+  // Email list
+  const [emails, setEmails] = useState([
+    'safacs@hotmail.com',
+    'malici20@hotmail.com',
+    'anotheremail@example.com',
+  ]);  
+  
+  // Selected email and fetched emails
+  const [selectedEmail, setSelectedEmail] = useState<string | null>(null);  
+  const [fetchedEmails, setFetchedEmails] = useState([]);  
+
+  // Set the first email as the default selected email on component mount
+  useEffect(() => {
+    if (emails.length > 0) {
+      setSelectedEmail(emails[0]);
+      fetchEmails(emails[0]);  // Fetch emails for the first email
+    }
+  }, [emails]);
+
+  // Function to fetch emails based on the selected email
+  const fetchEmails = async (email: string) => {
+    console.log(`Fetching emails for ${email}`);
+  };
+
+  // Handle email selection
+  const handleEmailSelect = (email: string) => {
+    setSelectedEmail(email);
+    fetchEmails(email);  // Fetch emails for the newly selected email
+  };
 
   useEffect(() => {
     const getUsers = async () => {
@@ -59,38 +89,42 @@ export default function HomeScreen() {
 
         {/* Email Box with Plus Icon */}
         <View style={styles.emailContainer}>
-          {/* Emails section - can handle multiple emails horizontally */}
           <ScrollView horizontal={true} style={styles.emailScroll} contentContainerStyle={styles.emailScrollContent}>
-            <View style={styles.emailBox}>
-              <Text style={[styles.emailText, { color: textColor }]}>safacs@hotmail.com</Text>
-              <TouchableOpacity onPress={() => { console.log('Delete email pressed'); }}>
-                <Ionicons name="close-circle-outline" size={20} color={textColor} />
-              </TouchableOpacity>
-            </View>
-            
-            <View style={styles.emailBox}>
-              <Text style={[styles.emailText, { color: textColor }]}>malici20@hotmail.com</Text>
-              <TouchableOpacity onPress={() => { console.log('Delete email pressed'); }}>
-                <Ionicons name="close-circle-outline" size={20} color={textColor} />
-              </TouchableOpacity>
-            </View>
-            
-            {/* Add more emailBox views for additional emails */}
+            {emails.map((email, index) => (
+              <View key={index} style={[
+                styles.emailBox, 
+                selectedEmail === email && styles.selectedEmailBox  // Apply selected styles
+              ]}>
+                <TouchableOpacity onPress={() => handleEmailSelect(email)}>
+                  <Text style={[styles.emailText, selectedEmail === email && styles.selectedEmailText]}>
+                    {email}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => { console.log(`Delete ${email} pressed`); }}>
+                  <Ionicons name="close-circle-outline" size={20} color={selectedEmail === email ? '#fff' : '#000'} />
+                </TouchableOpacity>
+              </View>
+            ))}
           </ScrollView>
           {/* Plus Icon next to email boxes */}
           <TouchableOpacity onPress={() => { console.log('Add new email pressed'); }}>
             <Ionicons name="add-circle-outline" size={30} color={textColor} />
           </TouchableOpacity>
-
         </View>
-       
+
+        {/* Display fetched emails for the selected email */}
+        <View style={styles.emailDetails}>
+          <Text style={styles.detailsTitle}>Emails received by {selectedEmail}:</Text>
+          
+        </View>
+
         {/* User List with Block Button (Only emails now) */}
         <FlatList
           data={users}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <View style={[styles.item, { backgroundColor: itemBackgroundColor }]}> 
-              <TouchableOpacity onPress={() => router.push({ pathname: '/emailDetails', params: { email: item.email } })}>
+              <TouchableOpacity onPress={() => router.push({ pathname: '/emailDetails', params: { email: item.email, sentTo: selectedEmail } })}>
                 <Text style={[styles.email, { color: textColor }]}>{item.email}</Text>
               </TouchableOpacity>
 
@@ -132,11 +166,11 @@ const styles = StyleSheet.create({
   },
   emailScroll: {
     flexGrow: 0,
-    maxHeight: 50,  // Adjust max height if needed for a single row of emails
+    maxHeight: 50,  
   },
   emailScrollContent: {
-    flexDirection: 'row',  // Set the content direction to row for side-by-side layout
-    alignItems: 'center',  // Align email boxes vertically in the center
+    flexDirection: 'row', 
+    alignItems: 'center',
   },
   emailBox: {
     flexDirection: 'row',
@@ -147,27 +181,41 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 5,
     backgroundColor: '#fff',
-    marginRight: 10,  // Add space between the email boxes
+    marginRight: 10,  
+  },
+  selectedEmailBox: {
+    backgroundColor: '#007AFF',  // Highlight selected email
   },
   emailText: {
     fontSize: 18,
     fontWeight: 'bold',
     marginRight: 5,
+    color: '#000',
   },
-  title: {
-    color: 'white',
-    fontSize: 24,
+  selectedEmailText: {
+    color: '#fff',  // Change text color for selected email
+  },
+  emailDetails: {
+    marginTop: 20,
+  },
+  detailsTitle: {
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 20,
   },
+  emailDetailText: {
+    fontSize: 16,
+    marginTop: 10,
+  },
+  email: {
+    fontSize: 16,  
+    fontWeight: 'bold', 
+    marginBottom: 5, 
+  },
+
   item: {
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
-  },
-  email: {
-    fontSize: 18,
-    fontWeight: 'bold',
   },
   blockButton: {
     marginTop: 10,

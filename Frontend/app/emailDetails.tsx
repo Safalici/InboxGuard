@@ -5,14 +5,14 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 
 export default function EmailDetailsScreen() {
   const router = useRouter();
-  const { email } = useLocalSearchParams();  // Get the email passed from the previous screen
+  const { email, sentTo } = useLocalSearchParams();  // Get the email and sentTo params
 
-  // Placeholder for fetched email details (you will replace these with actual API response data)
-  const emailDetails = {
-    sender: email,  // This will be the email address of the sender (or fetched data)
-    recipient: 'user@example.com',  // The actual logged-in user's email (can be fetched)
-    subject: 'Test Subject',  // Fetched subject of the email
-  };
+  // Placeholder for multiple email details (replace this with actual API data)
+  const emailDetailsList = [
+    { sender: email, recipient: sentTo, subject: 'Test Subject 1' },
+    { sender: email, recipient: sentTo, subject: 'Test Subject 2' },
+    { sender: email, recipient: sentTo, subject: 'Test Subject 3' },
+  ];
 
   return (
     <View style={styles.container}>
@@ -21,17 +21,19 @@ export default function EmailDetailsScreen() {
         <Ionicons name="arrow-back" size={30} color="#000" />
       </TouchableOpacity>
 
-      {/* Clickable Sender Section */}
-      <TouchableOpacity onPress={() => router.push({ pathname: '/emailContent', params: { email: emailDetails.sender, subject: emailDetails.subject } })}>
-        <View style={styles.emailDetailBox}>
-            <Text style={styles.detailText}>Sender: {emailDetails.sender}</Text>
-            <Text style={styles.detailText}>Sent to: {emailDetails.recipient}</Text>
-            <Text style={styles.detailText}>Subject: {emailDetails.subject}</Text>
-        </View>
-    </TouchableOpacity>
-
-
-      
+      {/* Render each email as a separate block */}
+      {emailDetailsList.map((emailDetail, index) => (
+        <TouchableOpacity
+          key={index}
+          onPress={() => router.push({ pathname: '/emailContent', params: { email: emailDetail.sender, subject: emailDetail.subject } })}
+        >
+          <View style={styles.emailDetailBox}>
+            <Text style={styles.detailText}>Sender: {emailDetail.sender}</Text>
+            <Text style={styles.detailText}>Sent to: {emailDetail.recipient}</Text>
+            <Text style={styles.detailText}>Subject: {emailDetail.subject}</Text>
+          </View>
+        </TouchableOpacity>
+      ))}
     </View>
   );
 }
