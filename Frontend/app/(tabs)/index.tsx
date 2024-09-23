@@ -83,10 +83,9 @@ export default function HomeScreen() {
           />
         }>
         <ThemedView style={styles.titleContainer}>
-          <ThemedText type="title">Welcome {selectedEmail?.split('@')[0]}!</ThemedText>
+          <ThemedText type="title">Welcome Safa Abem!</ThemedText>
           <HelloWave />
         </ThemedView>
-
 
         {/* Email Box with Plus Icon */}
         <View style={styles.emailContainer}>
@@ -113,7 +112,11 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-       
+        {/* Display fetched emails for the selected email */}
+        <View style={styles.emailDetails}>
+          <Text style={styles.detailsTitle}>Emails received by {selectedEmail}:</Text>
+          
+        </View>
 
         {/* User List with Block Button (Only emails now) */}
         <FlatList
