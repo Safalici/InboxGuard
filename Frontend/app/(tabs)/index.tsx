@@ -1,4 +1,4 @@
-import { View, Image, StyleSheet, FlatList, ActivityIndicator, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Image, StyleSheet, FlatList, ActivityIndicator, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -8,11 +8,13 @@ import { fetchUsers, User } from '@/api/userApi';
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';  // For icons
 import { useRouter } from 'expo-router';
+import EmailSetup from '@/app/EmailSetup'; // Import the EmailSetup component
 
 export default function HomeScreen() {
   const router = useRouter(); 
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(false);  // Manage modal visibility
 
   const colorScheme = useColorScheme();
   const backgroundColor = colorScheme === 'dark' ? '#1D3D47' : '#A1CEDC';  
@@ -26,28 +28,28 @@ export default function HomeScreen() {
     'malici20@hotmail.com',
     'anotheremail@example.com',
   ]);  
-  
-  // Selected email and fetched emails
   const [selectedEmail, setSelectedEmail] = useState<string | null>(null);  
-  const [fetchedEmails, setFetchedEmails] = useState([]);  
 
-  // Set the first email as the default selected email on component mount
   useEffect(() => {
     if (emails.length > 0) {
       setSelectedEmail(emails[0]);
-      fetchEmails(emails[0]);  // Fetch emails for the first email
+      fetchEmails(emails[0]);
     }
   }, [emails]);
 
-  // Function to fetch emails based on the selected email
   const fetchEmails = async (email: string) => {
     console.log(`Fetching emails for ${email}`);
+    // Add email fetching logic here
   };
 
-  // Handle email selection
   const handleEmailSelect = (email: string) => {
     setSelectedEmail(email);
-    fetchEmails(email);  // Fetch emails for the newly selected email
+    fetchEmails(email); 
+  };
+
+  const handleAddNewEmail = (newEmail) => {
+    setEmails([...emails, newEmail]);  // Add the new email to the list
+    setIsModalVisible(false);  // Close the modal
   };
 
   useEffect(() => {
@@ -87,15 +89,11 @@ export default function HomeScreen() {
           <HelloWave />
         </ThemedView>
 
-
         {/* Email Box with Plus Icon */}
         <View style={styles.emailContainer}>
           <ScrollView horizontal={true} style={styles.emailScroll} contentContainerStyle={styles.emailScrollContent}>
             {emails.map((email, index) => (
-              <View key={index} style={[
-                styles.emailBox, 
-                selectedEmail === email && styles.selectedEmailBox  // Apply selected styles
-              ]}>
+              <View key={index} style={[styles.emailBox, selectedEmail === email && styles.selectedEmailBox]}>
                 <TouchableOpacity onPress={() => handleEmailSelect(email)}>
                   <Text style={[styles.emailText, selectedEmail === email && styles.selectedEmailText]}>
                     {email}
@@ -108,14 +106,19 @@ export default function HomeScreen() {
             ))}
           </ScrollView>
           {/* Plus Icon next to email boxes */}
-          <TouchableOpacity onPress={() => { console.log('Add new email pressed'); }}>
+          <TouchableOpacity onPress={() => setIsModalVisible(true)}>
             <Ionicons name="add-circle-outline" size={30} color={textColor} />
           </TouchableOpacity>
         </View>
 
-       
+        {/* EmailSetup Modal */}
+        <EmailSetup
+          isVisible={isModalVisible}
+          onClose={() => setIsModalVisible(false)}
+          onFetchSuccess={handleAddNewEmail}  // This will add the new email to the list
+        />
 
-        {/* User List with Block Button (Only emails now) */}
+        {/* User List with Block Button */}
         <FlatList
           data={users}
           keyExtractor={(item) => item.id.toString()}
@@ -124,8 +127,6 @@ export default function HomeScreen() {
               <TouchableOpacity onPress={() => router.push({ pathname: '/emailDetails', params: { email: item.email, sentTo: selectedEmail } })}>
                 <Text style={[styles.email, { color: textColor }]}>{item.email}</Text>
               </TouchableOpacity>
-
-              {/* Block Button */}
               <TouchableOpacity style={styles.blockButton} onPress={() => { console.log(`Block ${item.email} pressed`); }}>
                 <Text style={styles.blockButtonText}>Block</Text>
               </TouchableOpacity>
