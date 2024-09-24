@@ -23,4 +23,4 @@ To edit and test use this approach:
 - npm run web
 
 - To Test and run the project use npx expo start
-- To run the backend go to the folder backend/src and type "node server.js"
+- To run the backend go to the folder backend and type "python app.py"
