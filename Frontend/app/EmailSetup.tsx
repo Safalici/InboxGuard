@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Modal, TouchableOpacity, StyleSheet,  Alert } from 'react-native';
+import { View, Text, TextInput, Button, Modal, Alert, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 
@@ -10,12 +10,14 @@ const EmailSetup = ({ isVisible, onClose, onFetchSuccess }) => {
   const [imapServer, setImapServer] = useState(''); // IMAP server
   const [imapPort, setImapPort] = useState(993); // IMAP port, default to 993
 
+  // Available email providers and their IMAP settings
   const providers = {
     Gmail: { imapServer: 'imap.gmail.com', imapPort: 993 },
     Hotmail: { imapServer: 'imap-mail.outlook.com', imapPort: 993 },
     Yahoo: { imapServer: 'imap.mail.yahoo.com', imapPort: 993 },
   };
 
+  // Handle provider selection from dropdown
   const handleProviderChange = (provider) => {
     setSelectedProvider(provider);
     if (providers[provider]) {
@@ -24,24 +26,28 @@ const EmailSetup = ({ isVisible, onClose, onFetchSuccess }) => {
     }
   };
 
+  // Handle fetching emails
   const handleFetchEmails = async () => {
     if (!email || !password || !selectedProvider) {
       Alert.alert('Error', 'Please enter all details.');
       return;
     }
-
+    console.log("Email: ", email);
+    console.log("IMAP Server: ", imapServer);
     try {
-      const response = await axios.post('http://localhost:3000/fetch-emails', {
+      // Send the request to your Python backend to fetch emails
+      const response = await axios.post('http://localhost:5000/fetch-emails', {
         email,
         password,
         imapServer,
         imapPort,
+        numEmails: 10  // Optional: Specify how many emails to fetch
       });
 
-      const emails = response.data.emails;
+      const emails = response.data.emails;  // Fetch the email list
       console.log('Fetched Emails:', emails);
-      onFetchSuccess(emails); // Pass the fetched emails back to the parent component
-      onClose(); // Close modal after fetching
+      onFetchSuccess(emails);  // Pass the fetched emails back to the parent component
+      onClose();  // Close the modal after successful fetch
     } catch (error) {
       console.error('Error fetching emails:', error);
       Alert.alert('Error', 'Unable to fetch emails. Please check your credentials.');
@@ -66,12 +72,16 @@ const EmailSetup = ({ isVisible, onClose, onFetchSuccess }) => {
             <Picker.Item label="Yahoo" value="Yahoo" />
           </Picker>
 
+          {/* Input for email */}
           <TextInput
             placeholder="Email"
             value={email}
             onChangeText={setEmail}
             style={styles.input}
+            autoCapitalize="none"
           />
+
+          {/* Input for password */}
           <TextInput
             placeholder="Password"
             value={password}
@@ -80,7 +90,10 @@ const EmailSetup = ({ isVisible, onClose, onFetchSuccess }) => {
             secureTextEntry
           />
 
+          {/* Button to fetch emails */}
           <Button title="Fetch Emails" onPress={handleFetchEmails} />
+
+          {/* Cancel button */}
           <Button title="Cancel" color="red" onPress={onClose} />
         </View>
       </View>

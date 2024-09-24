@@ -24,7 +24,7 @@ export default function HomeScreen() {
   
   // Email list
   const [emails, setEmails] = useState([
-    'safacs@hotmail.com',
+ 
     'malici20@hotmail.com',
     'anotheremail@example.com',
   ]);  
@@ -48,9 +48,16 @@ export default function HomeScreen() {
   };
 
   const handleAddNewEmail = (newEmail) => {
-    setEmails([...emails, newEmail]);  // Add the new email to the list
+    // Check if the new email is already in the list
+    if (!emails.includes(newEmail)) {
+      setEmails([...emails, newEmail]);  // Add the new email to the list
+    } else {
+      Alert.alert('Error', 'Email already exists in the list.');
+    }
+    
     setIsModalVisible(false);  // Close the modal
   };
+  
 
   useEffect(() => {
     const getUsers = async () => {
